@@ -19,6 +19,6 @@ public class HealthController {
 
     @GetMapping("/health")
     public String health() {
-        return "UP";
+        return "UP TO Date";
     }
 }
