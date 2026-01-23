@@ -5,7 +5,8 @@ pipeline {
         AWS_REGION = "us-east-1"
         AWS_ACCOUNT_ID = "125814533602"
         ECR_REPO = "simple-health-api"
-        IMAGE_TAG = "latest"
+        IMAGE_TAG = "${BUILD_NUMBER}"
+
         ECR_URI = "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPO}"
     }
 
@@ -50,15 +51,25 @@ pipeline {
                 '''
             }
         }
+stage('Update K8s Manifest Repo') {
+    steps {
+        sh '''
+        rm -rf simple-health-k8s
+        git clone https://github.com/ritesh20j/simple-health-k8s.git
+        cd simple-health-k8s/base
 
-        stage('Deploy (Local Docker - optional)') {
-            steps {
-                sh '''
-                docker stop health || true
-                docker rm health || true
-                docker run -d -p 8081:8080 --name health ${ECR_REPO}:${IMAGE_TAG}
-                '''
-            }
-        }
+        sed -i "s|image: .*|image: ${ECR_URI}:${IMAGE_TAG}|" deployment.yaml
+
+        git config user.email "jenkins@local"
+        git config user.name "jenkins"
+
+        git add deployment.yaml
+        git commit -m "Update image to ${IMAGE_TAG}"
+        git push origin main
+        '''
+    }
+}
+
+    
     }
 }
