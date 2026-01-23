@@ -54,24 +54,27 @@ pipeline {
 stage('Update K8s Manifest Repo') {
   steps {
     withCredentials([usernamePassword(
-        credentialsId: 'github-creds',
-        usernameVariable: 'GIT_USER',
-        passwordVariable: 'GIT_TOKEN'
+      credentialsId: 'github-creds',
+      usernameVariable: 'GIT_USER',
+      passwordVariable: 'GIT_TOKEN'
     )]) {
       sh '''
         rm -rf simple-health-k8s
         git clone https://${GIT_USER}:${GIT_TOKEN}@github.com/ritesh20j/simple-health-k8s.git
         cd simple-health-k8s/base
-        sed -i 's|image: .*|image: 125814533602.dkr.ecr.us-east-1.amazonaws.com/simple-health-api:14|' deployment.yaml
+
+        sed -i "s|image: .*|image: 125814533602.dkr.ecr.us-east-1.amazonaws.com/simple-health-api:${BUILD_NUMBER}|" deployment.yaml
+
         git config user.email jenkins@local
         git config user.name jenkins
         git add deployment.yaml
-        git commit -m "Update image to 14"
+        git diff --quiet || git commit -m "Update image to ${BUILD_NUMBER}"
         git push origin main
       '''
     }
   }
 }
+
 
 
     
