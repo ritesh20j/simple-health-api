@@ -68,8 +68,9 @@ stage('Update K8s Manifest Repo') {
         git config user.email jenkins@local
         git config user.name jenkins
         git add deployment.yaml
-        git diff --quiet || git commit -m "Update image to ${BUILD_NUMBER}"
+        git diff --cached --quiet || git commit -m "Update image to ${BUILD_NUMBER}"
         git push origin main
+
       '''
     }
   }
