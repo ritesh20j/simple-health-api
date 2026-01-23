@@ -9,7 +9,7 @@ public class HealthController {
 
     @GetMapping("/hello")
     public String hello() {
-        return "Hello from CI/CD Java App Im Ritesh Finally you did it 121";
+        return "Hello Ritesh How are you";
     }
 
     @GetMapping("/time")
